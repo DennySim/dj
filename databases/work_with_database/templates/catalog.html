@@ -3,6 +3,14 @@
 
 {% block title %}Каталог{% endblock %}
 {% block content %}
+     <style>
+        .sorting {
+            padding-left: 10px;
+        }
+        .model_info {
+            text-align: center;
+        }
+    </style>
     <div class="container">
         <div class="header">
             <h1><a href="/catalog">Каталог</a></h1>
@@ -10,10 +18,24 @@
 
         <div class="sort-block">
             {# Здесь должен быть раздел с сортировкой #}
+            <p>Сортировать по:
+                <a class='sorting' href="/catalog?sort=name">названию</a>
+                <a class='sorting' href="/catalog?sort=min_price">начиная с дешевых</a>
+                <a class='sorting' href="/catalog?sort=max_price">начиная с дорогих</a>
+            </p>
         </div>
 
         <div class="content">
             {# Здесь должен отображаться каталог с телефонами #}
+
+            {% for phone in phones %}
+                <div style="display: inline-block; vertical-align:top">
+                    <h2 class='model_info'>{{ phone.name }}</h2>
+                    <p class='model_info'>Стоимость: {{ phone.price }}р.</p>
+                    <img src="{{ phone.image }}">
+                </div>
+            {% endfor %}
+
         </div>
     </div>
 {% endblock %}

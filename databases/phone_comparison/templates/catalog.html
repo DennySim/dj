@@ -3,9 +3,57 @@
 
 {% block title %}Каталог{% endblock %}
 {% block content %}
+    <style>
+        table {
+                display: inline-block;
+            }
+    </style>
     <div class="container">
         <div class="header">
             <h1>Сравнение телефонов</h1>
+
+                {% for phone in phones %}
+
+                    <table>
+                        <tr>
+                             <td>{{ phone.id }}</td>
+                        </tr>
+                        <tr>
+                             <td>{{ phone.brand }}</td>
+                        </tr>
+                        <tr>
+                             <td>{{ phone.model }}</td>
+                        </tr>
+                        <tr>
+                             <td>{{ phone.color }}</td>
+                        </tr>
+                     <tr>
+                             <td>{{ phone.price }} руб</td>
+                        </tr>
+                        <tr>
+                             <td>{{ phone.operating_system }}</td>
+                        </tr>
+                        <tr>
+                             <td>{{ phone.cpu }}</td>
+                        </tr>
+                        <tr>
+                            <td>
+                            {% if phone.ram != '-'%}
+                               {{ phone.ram }} Гб
+                            {% else %}
+                                {{ phone.ram }}
+                            {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                             <td>{{ phone.fm_radio }}</td>
+                        </tr>
+                        <tr>
+                             <td>{{ phone.torch }}</td>
+                        </tr>
+                    </table>
+
+                {% endfor %}
         </div>
     </div>
 {% endblock %}

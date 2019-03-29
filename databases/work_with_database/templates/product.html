@@ -3,12 +3,25 @@
 
 {% block title %}Телефон{% endblock %}
 {% block content %}
+    <style>
+        .model_info {
+            text-align: center;
+        }
+    </style>
     <div class="container">
         <div class="header">
             <h1>Телефон</h1>
         </div>
         <div class="content">
-
+            {% for phone in phones %}
+                <div>
+                    <div style="display: inline-block; vertical-align:top">
+                    <h2 class="model_info">{{ phone.name }}</h2>
+                    <p class="model_info">Стоимость: {{ phone.price }}р.</p>
+                    <p class="model_info">Дата выхода: {{ phone.release_date.isoformat }}</p>
+                    <img src="{{ phone.image }}">
+                </div>
+            {% endfor %}
         </div>
     </div>
 {% endblock %}
