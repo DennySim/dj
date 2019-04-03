@@ -14,9 +14,9 @@ class FileList(TemplateView):
         date_filter = None
 
         if date:
-            date_items = date.split('-')
-            date_items = [int(i) for i in date_items]
-            date_filter = datetime.datetime(*date_items).timestamp()
+
+            date = datetime.datetime.strptime(date, "%Y-%m-%d").timetuple()
+            date_filter = time.mktime(date)
 
         for file in filelist:
 
@@ -25,33 +25,32 @@ class FileList(TemplateView):
             ctime = statinfo.st_ctime
             mtime = statinfo.st_mtime
 
+            file_to_context = {'name': file,
+                               'ctime': time.ctime(ctime),
+                               'mtime': time.ctime(mtime)}
+
             if date_filter:
                 if ctime < date_filter:
-                    files.append({'name': file,
-                                  'ctime': time.ctime(ctime),
-                                  'mtime': time.ctime(mtime)})
+                    files.append(file_to_context)
             else:
-                files.append({'name': file,
-                              'ctime': time.ctime(ctime),
-                              'mtime': time.ctime(mtime)})
+                files.append(file_to_context)
 
+        context = {'files': files}
         if date:
-            return {
-                'files': files,
-                'date': time.ctime(date_filter)
-                # 'date': datetime.date(date)  # Этот параметр необязательный
-            }
+            context['date'] = time.ctime(date_filter)
+            return context
         else:
-            return {
-                'files': files,
-            }
+            return context
 
 
 def file_content(request, name):
     # Реализуйте алгоритм подготавливающий контекстные данные для шаблона по примеру:
     file_path = os.getcwd() + '/files/' + name
-    file_content = open(file_path, 'r')
-    text = file_content.read()
+    if os.path.isfile(file_path):
+        file_content = open(file_path, 'r')
+        text = file_content.read()
+    else:
+        text = 'No such file or directory'
 
     return render(
         request,

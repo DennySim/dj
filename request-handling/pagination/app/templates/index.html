@@ -23,9 +23,10 @@
       {% endfor %}
       </tbody>
     </table>
-    {% if prev_page_url %}<a class="button button-primary" href="{{ prev_page_url }}">⟵</a>{% endif %}
-    <a class="button disabled" href="">{{ current_page }}</a>
-    {% if next_page_url %}<a class="button button-primary" href="{{ next_page_url }}">⟶</a>{% endif %}
+
+    {% if bus_stations.has_previous %}<a class="button button-primary" href="?page={{ bus_stations.previous_page_number }}">⟵</a>{% endif %}
+    <a class="button disabled" href="">{{ bus_stations.number }}</a>
+    {% if bus_stations.has_next %}<a class="button button-primary" href="?page={{ bus_stations.next_page_number }}">⟶</a>{% endif %}
   </div>
 </div>
 {% endblock %}
