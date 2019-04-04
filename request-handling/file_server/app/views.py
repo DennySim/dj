@@ -1,13 +1,14 @@
 import datetime, time, os
-
 from django.shortcuts import render
 from django.views.generic import TemplateView
+from django.http import Http404
 
 
 class FileList(TemplateView):
     template_name = 'index.html'
     def get_context_data(self, date=None):
         # Реализуйте алгоритм подготавливающий контекстные данные для шаблона по примеру:
+        context = {}
         files = []
         file_dir = os.getcwd() + '/files/'
         filelist = os.listdir(file_dir)
@@ -17,6 +18,7 @@ class FileList(TemplateView):
 
             date = datetime.datetime.strptime(date, "%Y-%m-%d").timetuple()
             date_filter = time.mktime(date)
+            context['date'] = time.ctime(date_filter)
 
         for file in filelist:
 
@@ -35,22 +37,18 @@ class FileList(TemplateView):
             else:
                 files.append(file_to_context)
 
-        context = {'files': files}
-        if date:
-            context['date'] = time.ctime(date_filter)
-            return context
-        else:
-            return context
+        context['files'] = files
+        return context
 
 
 def file_content(request, name):
     # Реализуйте алгоритм подготавливающий контекстные данные для шаблона по примеру:
     file_path = os.getcwd() + '/files/' + name
-    if os.path.isfile(file_path):
-        file_content = open(file_path, 'r')
-        text = file_content.read()
-    else:
-        text = 'No such file or directory'
+    try:
+        with open(file_path, 'r') as file_content:
+            text = file_content.read()
+    except FileNotFoundError:
+        raise Http404()
 
     return render(
         request,
