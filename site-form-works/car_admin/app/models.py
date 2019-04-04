@@ -2,8 +2,14 @@ from django.db import models
 
 
 class Car(models.Model):
-    brand = models.CharField(max_length=50)
-    model = models.CharField(max_length=50)
+
+    brand = models.CharField(max_length=50, verbose_name='Марка')
+    model = models.CharField(max_length=50, verbose_name='Модель')
+
+    class Meta:
+        ordering = ['-id']
+        verbose_name = 'Автомобиль'
+        verbose_name_plural = 'Автомобили'
 
     def __str__(self):
         return f'{self.brand} {self.model}'
@@ -13,10 +19,15 @@ class Car(models.Model):
 
 
 class Review(models.Model):
-    car = models.ForeignKey(Car, on_delete=models.CASCADE)
-    title = models.CharField(max_length=100)
+    car = models.ForeignKey(Car, on_delete=models.CASCADE, verbose_name='Автомобиль')
+    title = models.CharField(max_length=100, verbose_name='Название обзора')
     text = models.TextField()
 
     def __str__(self):
         return str(self.car) + ' ' + self.title
+
+    class Meta:
+        ordering = ['-id']
+        verbose_name = 'Обзор'
+        verbose_name_plural = 'Обзоры'
 

@@ -2,25 +2,33 @@
 
 {% block content %}
 <div class="margin-left">
+{#    <h2>Товар {{ object.product }}</h2>#}
     <h2>Товар {{ object.name }}</h2>
     <img src="{{ MEDIA_URL }}{{ object.img.url }}" class="preview">
     <h4>Обзоры:</h4>
     <ul>
+{#        {{ reviews }}#}
         {% for review in reviews %}
             <li><p>{{review.text}}</p></li>
         {% endfor %}
     </ul>
-    {% if is_review_exist %}
+{#    {% if is_review_exist %}#}
+    {% if not form %}
         <p>Обзор от вас уже есть</p>
     {% else %}
         <p>Можете добавить обзор</p>
     {% endif %}
 
-    <form action="{% url 'product_detail' product.id %}" method="POST">
+    <form action="{% url 'product_detail' object.id %}" method="POST">
+{#    <form action="{% url 'product_detail' object.product.id %}" method="POST">#}
+
         {% csrf_token %}
         {{ form }}
+
         <br>
-        <input type="submit" value="Отправить отзыв"/>
+        {% if form %}
+            <input type="submit" value="Отправить отзыв"/>
+        {% endif %}
     </form>
 </div>
 {% endblock %}
