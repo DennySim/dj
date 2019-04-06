@@ -31,7 +31,7 @@
                 {% if post.data.score %}
                   {{ post.data.score|score }}
                 {% else %}
-                  {{ 0|score }}
+                  Нет оценок
                 {% endif %}
               </p>
                 <p>Число комментариев: {{ post.data.num_comments|format_num_comments}}</p>

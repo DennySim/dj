@@ -8,8 +8,17 @@ class StudentListView(ListView):
     ordering = 'group'
 
     def get_context_data(self, **kwargs):
-        context = super(StudentListView, self).get_context_data(**kwargs)
-        context['teachers'] = Teacher.objects.all()
+
+        context = {}
+
+        # context = super(StudentListView, self).get_context_data(**kwargs)
+        context['student_list'] = \
+            Student.objects.all().prefetch_related('teacher')
+
+        context['teachers'] = Teacher.objects.all().prefetch_related('students')
         return context
+
+
+
 
 
