@@ -1,7 +1,7 @@
 import datetime, time, os
-from django.shortcuts import render
+from django.shortcuts import render, HttpResponse
 from django.views.generic import TemplateView
-from django.http import Http404
+from django.http import Http404, HttpResponseNotFound
 
 
 class FileList(TemplateView):
@@ -45,8 +45,11 @@ def file_content(request, name):
     # Реализуйте алгоритм подготавливающий контекстные данные для шаблона по примеру:
     file_path = os.getcwd() + '/files/' + name
     try:
-        with open(file_path, 'r') as file_content:
-            text = file_content.read()
+        if os.path.isfile(file_path):
+            with open(file_path, 'r') as file_content:
+                text = file_content.read()
+        # else:
+        #     return HttpResponseNotFound('page not found')
     except FileNotFoundError:
         raise Http404()
 
