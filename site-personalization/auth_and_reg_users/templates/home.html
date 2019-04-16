@@ -4,9 +4,24 @@
 {% block title %}Главная страница{% endblock %}
 
 {% block content %}
+    <style>
+        button {
+            margin-bottom: 10px;
+            display: block;
+        }
+    </style>
     <div class="container">
         <div class="header"></div>
-            Привет, <b>гость</b>.<br>
-            Пожалуйста, <a href="/signup">зарегистрируйся</a> или <a href="/login">авторизуйся</a>!
+        {% if user.is_authenticated %}
+            Привет, <b>{{ user.username }}</b>.<br>
+            <button><a href="/logout">Выйти</a></button>
+            <button><a href="/signup">Зарегистрировать нового пользователя</a></button>
+            <button><a href="/login">Авторизоваться под другим пользователем</a></button>
+        {% elif text %}
+            {{ text }} <br>
+            <a href="/">Домашняя страница</a>
+        {% else %}
+            Привет, гость! Пожалуйста, <a href="/signup">зарегистрируйся</a> или <a href="/login">авторизуйся</a>!
+        {% endif %}
     </div>
 {% endblock %}

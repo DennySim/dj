@@ -6,12 +6,33 @@
 {% block content %}
     <div class="container">
         <div class="header">
-            <h1>Список статей</h1>
+            {% if user.is_anonymous %}
+            <h6>Авторизоваться для доступа к статьям доступным по подписке</h6>
+                <form action="/login/" method="POST">
+                <br>
+                {% csrf_token %}
+                {{ login_form }}
+                <br>
+                <input type="submit" value="Авторизоваться">
+            </form>
+            {% endif %}
         </div>
+
+
         <div class="articles">
-            <h3>Статья 1</h3>
-            <h3>Статья 2</h3>
-            <h3>Статья 3</h3>
+            {% if subscribe %}
+                <form action="/articles/" method="POST">
+                 <h2>Подписка</h2>
+                {% csrf_token %}
+                <br>
+                <input type="submit" value="Подписаться">
+            </form>
+                <br>
+            {% endif %}
+            <h1>Список статей</h1>
+            {% for article in articles %}
+                <h3><a href="/articles/{{ article.id }}">{{ article.headline }}</a></h3>
+            {% endfor %}
         </div>
     </div>
 {% endblock %}

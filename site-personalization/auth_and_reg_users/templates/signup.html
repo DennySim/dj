@@ -4,8 +4,27 @@
 {% block title %}Регистрация{% endblock %}
 
 {% block content %}
-    <div class="container">
+    <div style="text-align: center" class="container">
         <div class="header"></div>
-        <h2>Регистрация</h2>
+        {% if form %}
+            <form action="" method="POST">
+                 <h2>Регистрация</h2>
+                {% csrf_token %}
+                {{ form }}
+                <br>
+                <input type="submit" value="Зарегистрироваться">
+            </form>
+        {% endif %}
+        <br>
+        {% if login_form %}
+            <form action="{% url 'logging_in' %}" method="POST">
+                <h2>Вход</h2>
+                <br>
+                {% csrf_token %}
+                {{ login_form }}
+                <br>
+                <input type="submit" value="Авторизоваться">
+            </form>
+        {% endif %}
     </div>
 {% endblock %}

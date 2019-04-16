@@ -8,5 +8,31 @@
         <div class="header">
             <h1>Игра "Угадай число"</h1>
         </div>
+        <p style="visibility: {{ hide2 }}">{{ message }}</p>
+        {% if message %}
+            <p><a href="">Проверить результат</a></p>
+        {% endif %}
+        <form action="" method="POST" style="visibility: {{ hide_magic_number }}">
+            {% csrf_token %}
+            <input type="text" name='magic_number' value="" >
+            <input type="submit" value="Загадать">
+        </form>
+        <br>
+        <form action="" method="POST" style="visibility: {{ hide_answer }}">
+            {% csrf_token %}
+            {% if answer_fail %}
+                <p>{{ answer_fail }}</p>
+            {% endif %}
+            <input type="text" name='answer' value="">
+            <input type="submit" value="Отгадать">
+        </form>
+        {% if is_guessed %}
+            <p>{{ is_guessed }}</p>
+            <p><a href="">Начать заново</a></p>
+        {% endif %}
+        {% if answer_win %}
+            <p>{{ answer_win }}</p>
+            <p><a href="">Начать заново</a></p>
+        {% endif %}
     </div>
 {% endblock %}
