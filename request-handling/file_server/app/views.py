@@ -44,14 +44,14 @@ class FileList(TemplateView):
 def file_content(request, name):
     # Реализуйте алгоритм подготавливающий контекстные данные для шаблона по примеру:
     file_path = os.getcwd() + '/files/' + name
-    try:
-        # if os.path.isfile(file_path):
+    # try:
+    if os.path.isfile(file_path):
         with open(file_path, 'r') as file_content:
             text = file_content.read()
-        # else:
-        #     return HttpResponseNotFound('page not found')
-    except FileNotFoundError:
-        raise Http404()
+    else:
+        return HttpResponseNotFound('page not found')
+    # except FileNotFoundError:
+    #     raise Http404()
 
     return render(
         request,
