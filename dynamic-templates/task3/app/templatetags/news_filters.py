@@ -1,19 +1,18 @@
 from django import template
-import time
+from datetime import datetime
 
 register = template.Library()
 
 
 @register.filter
 def format_date(value):
-    delta = time.time() - value
-
+    delta = round(datetime.now().timestamp() - value, 2)
     if delta < 600:
         return 'только что'
     elif 600 <= delta < 86400:
         return '{} часов назад'.format(int(delta // 3600))
     else:
-        return time.strftime("%Y-%m-%d", time.gmtime(value))
+        return datetime.strftime(datetime.now(), "%Y-%m-%d")
 
 
 @register.filter

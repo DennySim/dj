@@ -1,4 +1,7 @@
-<!DOCTYPE html>{% load static %}
+<!DOCTYPE html>
+{% load static %}
+{% load extra_filters %}
+
 <html>
   <head>
     <meta charset="UTF-8">
@@ -17,35 +20,33 @@
       <div class="row">
         <h1 class="col s12">Инфляция в России</h1>
         <ul class="col s12 m8">
-{#         <li>  {{ header }} </li>#}
         <table>
-            <tr>
-                {% for year in header %}
-                    <td> {{ year }} </td>
-                {% endfor %}
-            </tr>
-        {% for year, values in data.items %}
+            {% for title in data|first %}
+                <td bgcolor=
+                    {% if title == 'Суммарная' %}
+                        grey
+                    {% endif %}
+                >
+                    <h5>{{ title }}</h5>
+                </td>
+            {% endfor %}
 
+        {% for year in data %}
             <tr>
-                <td> {{ year }} </td>
-                {% for month_value in values %}
+                {% for key, month_value in year.items %}
 
-                    <td bgcolor='
-                        {% if month_value < 0 %}
-                            green
-                        {% elif month_value == values|last %}
-                            grey
-                        {% elif month_value > 1 and month_value < 2 %}
-                            #FF7F7F
-                        {% elif month_value >= 2 and month_value < 5 %}
-                            #FF3333
-                        {% elif month_value > 5 %}
-                            red
-                        {% else %}
-                            white
-                        {% endif %}
-                    '>
-                        {{ month_value }}
+                    <td bgcolor=
+
+                    {% if key == 'Суммарная' %}
+                        grey
+                    {% elif key == 'Год' %}
+                        white
+                    {% else %}
+                        {{ month_value|validate_month_value|get_month_value }}
+                    {% endif %}
+
+                    >
+                        {{ month_value|validate_month_value }}
                     </td>
                 {% endfor %}
             </tr>
