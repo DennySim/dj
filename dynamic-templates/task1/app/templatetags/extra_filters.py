@@ -30,12 +30,5 @@ def get_month_value(month_value):
     return color
 
 
-def validate_month_value(month_value):
-    if month_value == '':
-        month_value = '-'
-    return month_value
-
-
 register.filter('get_year', get_year)
 register.filter('get_month_value', get_month_value)
-register.filter('validate_month_value', validate_month_value)
