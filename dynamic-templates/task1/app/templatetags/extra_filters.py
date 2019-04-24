@@ -11,7 +11,7 @@ def get_year(value):
 
 def get_month_value(month_value):
 
-    if month_value == '-':
+    if month_value == '':
         color = 'white'
         return color
 

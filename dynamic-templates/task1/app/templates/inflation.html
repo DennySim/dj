@@ -42,7 +42,7 @@
                     {% elif key == 'Год' %}
                         white
                     {% else %}
-                        {{ month_value|default:"-"|get_month_value }}
+                        {{ month_value|get_month_value }}
                     {% endif %}
 
                     >
