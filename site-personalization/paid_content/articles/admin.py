@@ -9,6 +9,8 @@ from .models import Profile
 class ProfileInline(admin.StackedInline):
     model = Profile
     can_delete = False
+    # verbose_name = 'paid_subscription'
+    # verbose_name_plural = 'paid_subscription'
 
 
 class UserAdmin(BaseUserAdmin):

@@ -5,7 +5,6 @@ from django.db import models
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     paid_subscription = models.BooleanField(default=False)
-    pass
 
 
 class Article(models.Model):
@@ -13,4 +12,3 @@ class Article(models.Model):
     image = models.FileField(upload_to='img/')
     text = models.TextField()
     paid = models.BooleanField(default=False)
-    pass

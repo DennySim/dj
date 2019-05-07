@@ -14,8 +14,10 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.conf.urls import url
-from django.contrib import admin, auth
+from django.contrib import admin
 from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
 
 from articles import views
 
@@ -23,5 +25,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('login/', views.logging_in, name='logging_in'),
     path('articles/', views.show_articles, name='articles_list'),
-    url(r'^articles/(?P<id>[0-9]+)/', views.show_article, name='article_view'),
-]
+    path('subscribe/', views.subscribe),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

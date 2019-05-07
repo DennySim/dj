@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Подписка{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <form action="/subscribe/" method="POST">
+            <h2>Подписка</h2>
+            {% csrf_token %}
+            <br>
+            <input type="submit" value="Подписаться">
+        </form>
+    </div>
+{% endblock %}
