@@ -26,5 +26,7 @@ urlpatterns = [
     path('login/', views.logging_in, name='logging_in'),
     path('articles/', views.show_articles, name='articles_list'),
     path('subscribe/', views.subscribe),
+    path('article/', views.show_article, name='article'),
+    # url(r'^article/(?P<id>[0-9]+)/', views.show_article),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

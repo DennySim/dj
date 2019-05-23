@@ -33,7 +33,7 @@
             {% endif %}
             <h1>Список статей</h1>
             {% for article in articles %}
-                <h3><a href="/articles/?id={{ article.id }}">{{ article.headline }}</a></h3>
+                <h3><a href="/article/?id={{ article.id }}">{{ article.headline }}</a></h3>
                 <img src="{{ article.image.url }}" class="preview">
                 <p>{{ article.text }}</p>
             {% endfor %}

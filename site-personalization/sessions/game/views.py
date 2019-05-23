@@ -11,182 +11,135 @@ def render_home(request, context):
     )
 
 
+def player_id_check(request):
+    # print('player_id_check')
+    if 'player_id' not in request.session:
+        player = Player()
+        player.save()
+        request.session['player_id'] = player.id
+
+    return Player.objects.get(id=request.session['player_id'])
+
+
+def game_check(request, player):
+    # print('game_check')
+
+    game_set = Game.objects.filter(is_open=True)
+    if game_set:
+        return Game.objects.get(is_open=True)
+    else:
+        magic_number = random.randint(1, 10)
+        game = Game()
+        game.magic_number = magic_number
+        game.save()
+        request.session['game_id'] = game.id
+        player_game_info_creation(player, game, True)
+        return game
+
+
+def player_game_info_creation(player, game, is_author):
+    # print('player_game_info_creation')
+
+    player_game_info = PlayerGameInfo(player=player,
+                          game=game,
+                          is_author=is_author,
+                          )
+    player_game_info.save()
+
+
+def answer_attempt(request):
+    # print('answer_attempt')
+    answer = request.POST.get('answer')
+    player = player_id_check(request)
+    game = game_check(request, player)
+    player_game_info = PlayerGameInfo.objects.get(game=game, is_author=False)
+
+    if bool(answer):
+
+        player_game_info.attempts += 1
+        player_game_info.save()
+
+        return int(answer)
+
+
 def show_home(request):
-
+    print('show_home')
     context = {}
+    player = player_id_check(request)
 
-    if not request.session.exists(request.session.session_key):
-        request.session.create()
+    has_opened_games = Game.objects.filter(is_open=True)
 
-    session_id = request.session.session_key
+    if not has_opened_games:
+        # Нет открытой Игры и Игрок без game_id
+        if 'game_id' not in request.session:
+            # Создать Игру
+            game_check(request, player)
+    else:
+        open_game = Game.objects.get(is_open=True)
+        players = PlayerGameInfo.objects.filter(game=open_game.id)\
+            .values_list('player', flat=True)
+        player_count = len(players)
 
-    # Поиск открытой игры
-    game_id = Game.objects.filter(game_status=True)
+        # Добавление второго Игрока в игру
+        if 'game_id' not in request.session:
 
-    # Проверка, просмотрены ли результаты игры загадавшим игроком
-    game_number_is_guessed = PlayerGameInfo.objects.filter(is_guessed=True)
+            # Если зашел третий Игрок, а два игрока уже в Игре
+            if player_count == 2:
+                return HttpResponse('Ожидайте начало нового раунда')
 
-    # Загадавший проверяет результат(ск-ко потребовалось попыток)
-    if game_number_is_guessed:
+            game = has_opened_games.get(is_open=True)
+            request.session['game_id'] = game.id
+            player_game_info_creation(player, game, False)
 
-        context = {}
-        for game in game_number_is_guessed:
+    current_game = Game.objects.get(id=request.session['game_id'])
+    player_game_info = PlayerGameInfo.objects.get(
+         game_id=request.session['game_id'], player=player)
 
-            play_game = PlayerGameInfo.objects.get(game_id=game.game_id)
-            # play_game = PlayerGameInfo.objects.get(game__game=game.game.game)  # Тоже рабочий вариант
+    if player_game_info.is_author:
 
-            if play_game.player.player == session_id:
+        if not current_game.is_open:
 
+            player_game_info = PlayerGameInfo.objects.get(
+                game_id=request.session['game_id'], is_author=False)
+
+            del request.session['game_id']
+            context['is_guessed'] = 'Ваше число угадано, всего попыток {}' \
+                .format(player_game_info.attempts)
+
+        else:
+            context['message'] = 'Идет игра. Ваше число угадывается'
+
+        context['hide_magic_number'] = 'hidden'
+        context['hide_answer'] = 'hidden'
+        return render_home(request, context)
+
+    if not player_game_info.is_author:
+
+        print('not author')
+        player_game_info = PlayerGameInfo.objects.get(
+            game_id=request.session['game_id'], is_author=False)
+
+        if current_game.is_open:
+
+            answer = answer_attempt(request)
+            player_game_info.refresh_from_db()
+
+            if not answer or answer != current_game.magic_number:
+                print('Loose')
                 context['hide_magic_number'] = 'hidden'
-                context['hide_answer'] = 'hidden'
-                context['is_guessed'] = 'Ваше число угадано, всего попыток {}'\
-                    .format(play_game.attempts)
-
-                play_game.is_guessed = False
-                play_game.save()
-
+                context['answer_fail'] = 'Попробуй еще раз, ' \
+                                         'попытка №{}' \
+                    .format(player_game_info.attempts + 1)
                 return render_home(request, context)
 
-    # Если идет игра
-    if game_id:
-        def game_on(game_id):
-
-            game_id = game_id.get(game_status=True)
-            play_game = PlayerGameInfo.objects.get(game=game_id)
-            # Проверка Игрока №1
-            if play_game.player.player == session_id:
-                context['hide_magic_number'] = 'hidden'
-                context['hide_answer'] = 'hidden'
-                context['message'] = 'Идет игра. Ваше число угадывается'
-
-                return render_home(request, context)
-
-            # Проверка Игрока2, когда идет игра
-            # Игрок2 не default player
-            players = Player.objects.filter(player=session_id)
-            if play_game.guess.player != 'default':
-
-                # Игрок2 есть в БД
-                for player in players:
-                    if player.player == session_id:
-                        context['hide_magic_number'] = 'hidden'
-
-                        # Попытка угадать
-                        answer = request.POST.get('answer')
-
-                        # Ответ '' или None равен False просто обновит страницу
-                        if bool(answer) is False:
-                            return render_home(request, context)
-                        else:
-                            play_game.attempts += 1
-                            play_game.save()
-
-                            if game_id.magic_number == int(answer):
-
-                                # Успешная попытка - Число отгадано
-                                game_id.game_status = False
-                                game_id.save()
-
-                                play_game.is_guessed = True
-                                play_game.save()
-
-                                context['hide_answer'] = 'hidden'
-                                context['answer_win'] = 'Вы победили'
-                                context['begin_again'] = ''
-                                return render_home(request, context)
-
-                            else:
-                                # Неуспешная попытка
-                                context['answer_fail'] = 'Попробуй еще раз, ' \
-                                                         'попытка №{}'\
-                                            .format(play_game.attempts + 1)
-
-                                play_game.save()
-                                return render_home(request, context)
-
-                    # Игрок2 отсутствует в БД
-                    else:
-                        # Заглушка для "лишних" пользователей
-                        return HttpResponse('Ожидайте начало нового раунда')
-
-                """В случае отсутствия Игрок2 в игре, когда player2 == 'default',
-                то добавить Игрок2 в игру
-                """
             else:
+                print('Win')
 
-                # Игрок2 есть в БД
+                del request.session['game_id']
+                current_game.is_open = False
+                current_game.save()
 
-                if len(players) != 0:
-                    player = Player.objects.get(player=session_id)
-                    PlayerGameInfo.objects.filter(game__game_status=True)\
-                        .update(guess=player.id)
-                    Player.objects.get(player='default').delete()
-
-                # Игрока2 нет в БД
-                else:
-                    player = Player.objects.get(player='default')
-                    player.player = request.session.session_key
-                    player.save()
-
-                return redirect(
-                    'show_home'
-                )
-        return game_on(game_id)
-
-    # Если не идет игра
-    if not game_id:
-        def game_off():
-
-            # Если игра не началась, то Дефолтная страница до начала игры
-            if request.method == 'GET':
                 context['hide_answer'] = 'hidden'
+                context['answer_win'] = 'Вы победили'
+                context['begin_again'] = ''
                 return render_home(request, context)
-
-            # Инициализация игры, передача загаданного числа
-            if request.POST.get('magic_number'):
-                magic_number = request.POST.get('magic_number')
-                # Передано загаданное число
-
-                # Если нет игрока в БД
-                if len(Player.objects.values('player')
-                               .filter(player=session_id)) == 0:
-                    player = Player(player=session_id)
-                    player.save()
-
-                guess = Player(player='default')
-                guess.save()
-
-                game_id = ''.join(random.choices(string.ascii_lowercase +
-                                                 string.digits, k=30))
-                game = Game(game=game_id,
-                            magic_number=magic_number,
-                            game_status=True
-                            )
-                game.save()
-
-                # Должно быть инстансом Player для записи в модель PlayerGameInfo
-                player_id = Player.objects.get(player=request.session.session_key)
-                game_id = Game.objects.get(game=game_id)
-
-                player_game_info = PlayerGameInfo(player=player_id,
-                                                  game=game_id,
-                                                  is_guessed=False,
-                                                  attempts=0,
-                                                  guess=guess,
-                                                  )
-                player_game_info.save()
-                return redirect(
-                    'show_home',
-                )
-            else:
-
-                """Не передано загаданное число, то показать
-                Дефолтная страница до начала игры
-                """
-            context['hide_answer'] = 'hidden'
-            return render_home(request, context)
-        return game_off()
-
-
-
-

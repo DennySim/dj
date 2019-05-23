@@ -22,7 +22,7 @@ def logging_in(request):
                 )
 
 
-def show_articles(request):
+def show_article(request):
 
     context = {}
     articles = Article.objects.all()
@@ -33,6 +33,14 @@ def show_articles(request):
             request,
             'article.html', context
         )
+    else:
+        return redirect('articles_list')
+
+
+def show_articles(request):
+
+    context = {}
+    articles = Article.objects.all()
 
     if not request.user.is_authenticated:
 
@@ -41,8 +49,9 @@ def show_articles(request):
         context['login_form'] = login_form
 
     else:
-        print('auth')
+
         user = User.objects.get(username=request.user)
+
         if hasattr(user, 'profile'):
             if not user.profile.paid_subscription:
                 context['subscribe'] = True
@@ -65,8 +74,7 @@ def subscribe(request):
 
         user = User.objects.get(username=request.user)
         profile = Profile(user=user,
-                          paid_subscription=True
-                          )
+                          paid_subscription=True)
         profile.save()
         return redirect('articles_list')
 
